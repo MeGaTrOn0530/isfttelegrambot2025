@@ -29,9 +29,10 @@ const PORT = process.env.PORT || 3000
 
 // Middleware
 app.use(express.json())
+// CORS middleware - faqat ma'lum domenlardan so'rovlarga ruxsat berish
 app.use(
   cors({
-    origin: "*", // Barcha so'rovlarga ruxsat berish (ishlab chiqarish muhitida o'zgartiring)
+    origin: ["https://isfttelegrambot2025.onrender.com", "https://isfttelegrambot2025.onrender.com"],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Student-Id", "X-Student-Name"],
     credentials: true,
