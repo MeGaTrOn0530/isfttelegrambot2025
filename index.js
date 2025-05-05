@@ -32,8 +32,9 @@ app.use(express.json())
 app.use(
   cors({
     origin: "*", // Barcha so'rovlarga ruxsat berish (ishlab chiqarish muhitida o'zgartiring)
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Student-Id", "X-Student-Name"],
+    credentials: true,
   }),
 )
 
@@ -127,9 +128,13 @@ bot.help((ctx) => {
 // Tasdiqlash kodini yuborish uchun API endpoint
 app.post("/api/auth/send-verification-code", async (req, res) => {
   try {
+    console.log("So'rov qabul qilindi:", req.body)
+    console.log("So'rov headers:", req.headers)
+
     const { telegram } = req.body
 
     if (!telegram) {
+      console.log("Telegram username kiritilmagan")
       return res.status(400).json({
         success: false,
         error: "Telegram username kiritilmagan",
@@ -140,6 +145,7 @@ app.post("/api/auth/send-verification-code", async (req, res) => {
 
     // 6 xonali tasodifiy kod yaratish
     const code = Math.floor(100000 + Math.random() * 900000).toString()
+    console.log(`Yaratilgan kod: ${code}`)
 
     // Kodni saqlash (10 daqiqa muddatga)
     verificationCodes.set(telegram.toLowerCase(), {
@@ -174,14 +180,14 @@ app.post("/api/auth/send-verification-code", async (req, res) => {
       console.error("Telegram xabarini yuborishda xatolik:", error)
       return res.status(500).json({
         success: false,
-        error: "Telegram xabarini yuborishda xatolik yuz berdi",
+        error: "Telegram xabarini yuborishda xatolik yuz berdi: " + error.message,
       })
     }
   } catch (error) {
     console.error("Tasdiqlash kodini yuborishda xatolik:", error)
     return res.status(500).json({
       success: false,
-      error: "Tasdiqlash kodini yuborishda xatolik yuz berdi",
+      error: "Tasdiqlash kodini yuborishda xatolik yuz berdi: " + error.message,
     })
   }
 })
