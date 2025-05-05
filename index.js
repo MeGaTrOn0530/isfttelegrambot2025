@@ -27,17 +27,20 @@ const bot = new Telegraf(TELEGRAM_BOT_TOKEN)
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// Middleware
-app.use(express.json())
-// CORS middleware - faqat ma'lum domenlardan so'rovlarga ruxsat berish
+// CORS ni to'g'ri sozlash - bu muhim!
 app.use(
   cors({
-    origin: ["https://isfttelegrambot2025.onrender.com", "https://isfttelegrambot2025.onrender.com"],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Student-Id", "X-Student-Name"],
-    credentials: true,
+    origin: "*", // Ishlab chiqarish muhitida buni aniqroq sozlash kerak
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "X-Student-Id", "X-Student-Name"],
   }),
 )
+
+// JSON so'rovlarni qabul qilish uchun
+app.use(express.json())
+
+// Static fayllarni yuklash
+app.use(express.static(path.join(__dirname, "public")))
 
 // Ma'lumotlar uchun papka yaratish
 const DATA_DIR = path.join(__dirname, "data")
@@ -126,8 +129,9 @@ bot.help((ctx) => {
   return ctx.reply("Men tasdiqlash kodlarini yuborish uchun botman. Ro'yxatdan o'tish jarayonida sizga kod yuboriladi.")
 })
 
-// Tasdiqlash kodini yuborish uchun API endpoint
-app.post("/api/auth/send-verification-code", async (req, res) => {
+// API endpointlarini to'g'ri sozlash
+// Tasdiqlash kodini yuborish uchun API endpoint - ikkala yo'lni ham qo'llab-quvvatlash
+app.post(["/api/auth/send-verification-code", "/auth/send-verification-code"], async (req, res) => {
   try {
     console.log("So'rov qabul qilindi:", req.body)
     console.log("So'rov headers:", req.headers)
@@ -193,8 +197,8 @@ app.post("/api/auth/send-verification-code", async (req, res) => {
   }
 })
 
-// Tasdiqlash kodini tekshirish uchun API endpoint
-app.post("/api/auth/verify-code", (req, res) => {
+// Tasdiqlash kodini tekshirish uchun API endpoint - ikkala yo'lni ham qo'llab-quvvatlash
+app.post(["/api/auth/verify-code", "/auth/verify-code"], (req, res) => {
   try {
     const { telegram, code } = req.body
 
@@ -252,8 +256,8 @@ app.post("/api/auth/verify-code", (req, res) => {
   }
 })
 
-// Foydalanuvchini ro'yxatdan o'tkazish uchun API endpoint
-app.post("/api/register", async (req, res) => {
+// Foydalanuvchini ro'yxatdan o'tkazish uchun API endpoint - ikkala yo'lni ham qo'llab-quvvatlash
+app.post(["/api/register", "/register"], async (req, res) => {
   try {
     const userData = req.body
 
